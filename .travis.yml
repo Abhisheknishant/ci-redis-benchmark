@@ -1,21 +1,18 @@
 language: c
 os:
   - linux
-  - osx
 arch:
   - amd64
-  # - ppc64le  # Apply patch
+  - ppc64le
   - arm64
 services:
   - redis
 
 install: 
-  - ci-base/install.sh
-  - install.sh
+  - ci-base/install.sh travis
+  - ./install.sh travis
 script: ./run.sh
 jobs:
   exclude:
-  - os: osx
-    arch: ppc64le
   - os: osx
     arch: arm64

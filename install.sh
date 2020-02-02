@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./${1}_install.sh
+[[ -e "${1}_install.sh" ]] && ./${1}_install.sh

@@ -15,17 +15,20 @@ keyspacelen=42
 numreq=1
 
 run_iteration () {
-    redis-benchmark --csv \
-        -h ${host:-localhost} \
-        -p ${port:-6379} \
-        -a "$password" \
-        -c $clients \
-        -n $requests \
-        -d $size \
-        -k $keep_live \
-        -r $keyspacelen \
-        -P $numreq \
-        > /tmp/redis-benchmark-$client-$request-$size.csv 
+    args=""
+    args+=" -h ${host:-localhost}"
+    args+=" -p ${port:-6379}"
+    [[ -n "$password" ]] && args+=" -a $password"
+    args+=" -c $clients"
+    args+=" -n $requests"
+    args+=" -d $size"
+    args+=" -k $keepalive"
+    args+=" -r $keyspacelen"
+    args+=" -P $numreq"
+    test="SET"
+
+    redis-benchmark --csv $args > /tmp/redis-benchmark-$clients-$requests-$size.csv
+    cat /tmp/redis-benchmark-$clients-$requests-$size.csv
     cb-client redis-benchmark \
         --clients $clients \
         --requests $requests \
@@ -33,13 +36,15 @@ run_iteration () {
         --keepalive $keepalive \
         --keyspacelen $keyspacelen \
         --numreq $numreq \
-        --datastore-type-id $datastore_type \
-        < /tmp/redis-benchmark-$client-$request-$size.csv
+        --datastore-type-id $datastore_type_id \
+        < /tmp/redis-benchmark-$clients-$requests-$size.csv
 }
 
 for i in $(seq 1 $iterations) ; do
-    for clients in $threads ; do
-        requests=$((100000*client))
+    for thread in $threads ; do
+        clients=$((thread*50))
+        requests=$((100000*thread))
+        echo "Run ${clients} clients ${requests} requests"
         run_iteration
     done
 done
