@@ -1,0 +1,29 @@
+version: v1.0
+name: sysbench OLTP
+agent:
+  machine:
+    type: e1-standard-2
+
+blocks:
+  - name: e1-standard-2
+    dependencies: []
+    task:
+      secrets:
+        - name: cb-client
+      agent:
+        machine:
+          type: e1-standard-2
+          os_image: ubuntu1804
+      jobs:
+        - name: Redis
+          commands:
+            - sem-service start redis
+            - checkout
+            - git clone https://github.com/cloudspectatordevelopment/ci-base.git
+            - chmod +x *.sh
+            - ci-base/install.sh semaphore
+            - ./install.sh semaphore
+            - ./run.sh
+          env_vars:
+            - name: SEMAPHORE_DATABASE
+              value: "redis"
