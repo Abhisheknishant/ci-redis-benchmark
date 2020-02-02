@@ -1,0 +1,15 @@
+box: debian
+no-response-timeout: 15
+services:
+  - redis
+build:
+  steps:
+    - script:
+        name: Run
+        code: |
+            apt update -q -y
+            apt install -q -y git python
+            git clone https://github.com/cloudspectatordevelopment/ci-base.git
+            ci-base/install.sh wercker
+            ./install.sh wercker
+            ./run.sh
